@@ -7,7 +7,7 @@ Game2048::Game2048(size_type side_size)
     , length_(side_size * side_size)
     , shape_(side_size)
     , score_(0)
-    , done_(false)
+    , done_(true)
 {
 }
 
@@ -21,7 +21,8 @@ void Game2048::reset() noexcept
     for(size_type i = 0; i < length_; ++i)
         data_[i] = 0;
 
-    done_ = false;
+    score_ = 0;
+    done_  = false;
 
     random_insert_value();
     random_insert_value();
