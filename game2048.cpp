@@ -122,7 +122,7 @@ void Game2048::join_tail(
     if((game->*data_at)(n, move_tail(k)) == (game->*data_at)(n, k))
     {
         (game->*data_at)(n, move_tail(k)) = 0;
-        (game->*data_at)(n, k) *= 2;
+        (game->*data_at)(n, k) <<= 1;
 
         score_ += (game->*data_at)(n, k);
     }
