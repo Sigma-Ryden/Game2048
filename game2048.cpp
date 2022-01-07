@@ -3,7 +3,6 @@
 Game2048::Game2048(size_type side_size)
     : generator_(std::time(nullptr))
     , data_(new unsigned_type [side_size * side_size])
-    , buff_(new unsigned_type [side_size])
     , length_(side_size * side_size)
     , shape_(side_size)
     , score_(0)
@@ -25,55 +24,6 @@ void Game2048::reset() noexcept
     done_  = false;
 
     random_insert_value();
-    random_insert_value();
-}
-
-void Game2048::step(Game2048::Option option) noexcept
-{
-    if(done_) return;
-
-    switch(option)
-    {
-    case(Option::up):
-        for(size_type j = 0; j < shape_; drop_vertical(j, to_up), ++j)
-        {
-            drop_vertical(j, to_up);
-            for(size_type i = 0; i < shape_ - 1; ++i)
-                join_vertical(i, j, move_up);
-        }
-        break;
-
-    case(Option::down):
-        for(size_type j = 0; j < shape_; drop_vertical(j, to_down), ++j)
-        {
-            drop_vertical(j, to_down);
-            for(size_type i = shape_ - 1; i > 0; --i)
-                join_vertical(i, j, move_down);
-        }
-        break;
-
-    case(Option::left):
-        for(size_type i = 0; i < shape_; drop_horizontal(i, to_up), ++i)
-        {
-            drop_horizontal(i, to_up);
-            for(size_type j = 0; j < shape_ - 1; ++j)
-                join_horizontal(i, j, move_up);
-        }
-        break;
-
-    case(Option::right):
-        for(size_type i = 0; i < shape_; drop_horizontal(i, to_down), ++i)
-        {
-            drop_horizontal(i, to_down);
-            for(size_type j = shape_ - 1; j > 0; --j)
-                join_horizontal(i, j, move_down);
-        }
-        break;
-
-    default:
-        return;
-    }
-
     random_insert_value();
 }
 
@@ -109,50 +59,122 @@ void Game2048::random_insert_value() noexcept
     }
 }
 
-void Game2048::join_vertical(
-    size_type i,
-    size_type j,
-    unsigned_type (*vertical_move)(unsigned_type)) noexcept
+void Game2048::step(Game2048::Option option) noexcept
 {
-    if(data(i, j) == data(vertical_move(i), j))
-    {
-        data(i, j) <<= 1;
-        data(vertical_move(i), j) = 0;
+    if(done_) return;
 
-        score_ += data(i, j);
+    switch(option)
+    {
+    case(Option::up):
+        option_inc(this, &Game2048::vertical_access);
+        break;
+
+    case(Option::down):
+        option_dec(this, &Game2048::vertical_access);
+        break;
+
+    case(Option::left):
+        option_inc(this, &Game2048::horizontal_access);
+        break;
+
+    case(Option::right):
+        option_dec(this, &Game2048::horizontal_access);
+        break;
+
+    default:
+        return;
+    }
+
+    random_insert_value();
+}
+
+void Game2048::option_inc(
+    Game2048 *game,
+    unsigned_type &(Game2048::*data_at)(size_type, size_type)) noexcept
+{
+    for(size_type n = 0; n < shape_; drop_zero_right(n, this, data_at), ++n)
+    {
+        drop_zero_right(n, this, data_at);
+        for(size_type i = 0; i < shape_ - 1; ++i)
+            join_tail(n, i, move_inc, this, data_at);
     }
 }
 
-void Game2048::join_horizontal(
-    size_type i,
-    size_type j,
-    unsigned_type (*horizontal_move)(unsigned_type)) noexcept
+void Game2048::option_dec(
+    Game2048 *game,
+    unsigned_type &(Game2048::*data_at)(size_type, size_type)) noexcept
 {
-    if(data(i, j) == data(i, horizontal_move(j)))
+    for(size_type n = 0; n < shape_; drop_zero_left(n, this, data_at), ++n)
     {
-        data(i, j) <<= 1;
-        data(i, horizontal_move(j)) = 0;
-
-        score_ += data(i, j);
+        drop_zero_left(n, this, data_at);
+        for(size_type i = shape_ - 1; i > 0; --i)
+            join_tail(n, i, move_dec, this, data_at);
     }
 }
 
-void Game2048::drop_vertical(
-    size_type j,
-    bool (*to_vertical_side)(unsigned_type, unsigned_type)) noexcept
+void Game2048::join_tail(
+    size_type n,
+    size_type k,
+    unsigned_type (*move_tail)(unsigned_type),
+    Game2048* game,
+    unsigned_type& (Game2048::*data_at)(size_type, size_type)) noexcept
 {
-    for(size_type i = 0; i < shape_; ++i)
-        buff_[i] = data(i, j);
+    if((game->*data_at)(n, move_tail(k)) == (game->*data_at)(n, k))
+    {
+        (game->*data_at)(n, move_tail(k)) = 0;
+        (game->*data_at)(n, k) *= 2;
 
-    std::sort(buff_, buff_ + shape_, to_vertical_side);
-
-    for(size_type i = 0; i < shape_; ++i)
-        data(i, j) = buff_[i];
+        score_ += (game->*data_at)(n, k);
+    }
 }
 
-void Game2048::drop_horizontal(
-    size_type i,
-    bool (*to_horizontal_side)(unsigned_type, unsigned_type)) noexcept
+void Game2048::drop_zero_left(
+    size_type n,
+    Game2048* game,
+    unsigned_type& (Game2048::*data_at)(size_type, size_type)) noexcept
 {
-    std::sort(data_ + i * shape_, data_ + (i + 1) * shape_, to_horizontal_side);
+    int beg = 0;
+    int end = shape_ - 1;
+    int i;
+
+    while(beg < end)
+    {
+        if((game->*data_at)(n, end) == 0)
+        {
+            for(i = end; i > beg; --i)
+                std::swap((game->*data_at)(n, i), (game->*data_at)(n, i - 1));
+
+            ++beg;
+        }
+        else
+        {
+            --end;
+        }
+    }
+}
+
+void Game2048::drop_zero_right(
+    size_type n,
+    Game2048* game,
+    unsigned_type& (Game2048::*data_at)(size_type, size_type)) noexcept
+{
+    int beg = 0;
+    int end = shape_ - 1;
+
+    int i;
+
+    while(beg < end)
+    {
+        if((game->*data_at)(n, beg) == 0)
+        {
+            for(i = beg; i < end; ++i)
+                std::swap((game->*data_at)(n, i), (game->*data_at)(n, i + 1));
+
+            --end;
+        }
+        else
+        {
+            ++beg;
+        }
+    }
 }
