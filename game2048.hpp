@@ -65,16 +65,16 @@ private:
 
     void join_tail(size_type i, size_type j,
                    MoveTailFunction move_tail,
-                   Game2048* game, Game2048DataAtFunction data_at) noexcept;
+                   Game2048DataAtFunction data_at) noexcept;
 
-    void drop_zero_left(size_type n, Game2048* game, Game2048DataAtFunction data_at) noexcept;
-    void drop_zero_right(size_type n, Game2048* game, Game2048DataAtFunction data_at) noexcept;
+    void drop_zero_left(size_type n, Game2048DataAtFunction data_at) noexcept;
+    void drop_zero_right(size_type n, Game2048DataAtFunction data_at) noexcept;
 
     static size_type move_inc(unsigned_type a) noexcept;
     static size_type move_dec(unsigned_type a) noexcept;
 
-    void option_inc(Game2048* game, Game2048DataAtFunction data_at) noexcept;
-    void option_dec(Game2048* game, Game2048DataAtFunction data_at) noexcept;
+    void option_inc(Game2048DataAtFunction data_at) noexcept;
+    void option_dec(Game2048DataAtFunction data_at) noexcept;
 };
 
 inline const std::size_t& Game2048::data(std::size_t i, std::size_t j) const noexcept

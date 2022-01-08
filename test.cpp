@@ -36,7 +36,7 @@ void display(const Game2048& game)
 
 void play()
 {
-    Game2048 game(3);
+    Game2048 game(4);
 
     game.reset();
 
