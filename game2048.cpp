@@ -125,7 +125,7 @@ void Game2048::join_tail(
         (this->*at)(n, move_tail(k)) = 0;
         (this->*at)(n, k)          <<= 1;
 
-        score_ += (this->*at)( n, k);
+        score_ += (this->*at)(n, k);
     }
 }
 
@@ -153,6 +153,7 @@ void Game2048::drop_zero_left(size_type n, Game2048DataAtFunction at) noexcept
 {
     int beg = 0;
     int end = size_ - 1;
+
     int i;
 
     while(beg < end)
