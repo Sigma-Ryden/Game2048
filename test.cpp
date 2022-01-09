@@ -39,17 +39,16 @@ void play()
     Game2048 game(4);
 
     game.reset();
-
     display(game);
 
     char button;
     while(!game.done())
     {
+
         std::cout << "Select option: up(w), down(s), left(a), right(d): ";
         std::cin >> button;
 
         game.step(get_option(button));
-
         display(game);
     }
 
