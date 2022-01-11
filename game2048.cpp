@@ -10,6 +10,18 @@ Game2048::Game2048(size_type side_size)
 {
 }
 
+Game2048::Game2048(size_type side_size, unsigned_type* data, size_type score, bool done)
+    : generator_(new Generator(std::time(nullptr)))
+    , data_(new unsigned_type [side_size * side_size])
+    , full_size_(side_size * side_size)
+    , size_(side_size)
+    , score_(score)
+    , done_(done)
+{
+    for(size_type i = 0; i < size_; ++i)
+        data_[i] = data[i];
+}
+
 Game2048::~Game2048()
 {
     delete generator_;

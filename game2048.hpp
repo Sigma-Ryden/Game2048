@@ -40,6 +40,8 @@ private:
 
 public:
     Game2048(size_type side_size);
+    Game2048(size_type side_size, unsigned_type* data, size_type score, bool done);
+
     ~Game2048();
 
     void reset() noexcept;

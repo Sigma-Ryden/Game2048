@@ -27,8 +27,8 @@ void display(const Game2048& game)
 {
     std::cout << "score: " << game.score() << '\n';
 
-    for(std::size_t i = 0; i < game.shape(); ++i, std::cout << '\n')
-        for(std::size_t j = 0; j < game.shape(); ++j)
+    for(std::size_t i = 0; i < game.size(); ++i, std::cout << '\n')
+        for(std::size_t j = 0; j < game.size(); ++j)
             std::cout << '\t' << game.data(i, j);
 
     std::cout << '\n';
