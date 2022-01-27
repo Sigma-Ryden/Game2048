@@ -30,7 +30,7 @@ public:
 private:
     Generator* generator_;
     unsigned_type* data_;
-		
+
     size_type full_size_;
     size_type size_;
 
@@ -50,7 +50,8 @@ public:
 
     const unsigned_type& data(size_type i, size_type j) const noexcept;
     const unsigned_type& data(size_type i) const noexcept;
-    const unsigned_type* data() const noexcept;
+
+    const unsigned_type* data() const noexcept { return data_; }
 
     size_type full_size() const noexcept { return full_size_; }
     size_type size() const noexcept { return size_; }
@@ -60,8 +61,8 @@ public:
     bool done() const noexcept { return done_; }
 
 private:
-    unsigned_type& horizontal_access(size_type row_n, size_type i) noexcept;
-    unsigned_type& vertical_access(size_type col_n, size_type i) noexcept;
+    unsigned_type& horizontal_access(size_type row_number, size_type i) noexcept;
+    unsigned_type& vertical_access(size_type col_number, size_type i) noexcept;
 
     size_type generate_insert_value(double prob_gen_2 = 0.9) noexcept;
 
@@ -85,8 +86,8 @@ private:
     bool check_dec(size_type n, Game2048DataAtFunction at) noexcept;
 
 private:
-    static size_type move_inc(unsigned_type a) noexcept;
-    static size_type move_dec(unsigned_type a) noexcept;
+    static size_type move_inc(unsigned_type a) noexcept { return ++a; }
+    static size_type move_dec(unsigned_type a) noexcept { return --a; }
 };
 
 inline const std::size_t& Game2048::data(std::size_t i, std::size_t j) const noexcept
@@ -99,11 +100,6 @@ inline const std::size_t& Game2048::data(std::size_t i) const noexcept
     return data_[i];
 }
 
-inline const std::size_t* Game2048::data() const noexcept
-{
-    return data_;
-}
-
 inline std::size_t& Game2048::horizontal_access( std::size_t row_number, std::size_t i) noexcept
 {
     return data_[row_number * size_ + i];
@@ -112,16 +108,6 @@ inline std::size_t& Game2048::horizontal_access( std::size_t row_number, std::si
 inline std::size_t& Game2048::vertical_access(std::size_t col_number, std::size_t i) noexcept
 {
     return data_[i * size_ + col_number];
-}
-
-inline std::size_t Game2048::move_inc(std::size_t a) noexcept
-{
-    return ++a;
-}
-
-inline std::size_t Game2048::move_dec(std::size_t a) noexcept
-{
-    return --a;
 }
 
 #endif // GAME2048_HPP
