@@ -100,7 +100,7 @@ inline const std::size_t& Game2048::data(std::size_t i) const noexcept
     return data_[i];
 }
 
-inline std::size_t& Game2048::horizontal_access( std::size_t row_number, std::size_t i) noexcept
+inline std::size_t& Game2048::horizontal_access(std::size_t row_number, std::size_t i) noexcept
 {
     return data_[row_number * size_ + i];
 }
