@@ -9,17 +9,30 @@
 class Game2048
 {
 public:
-    using Generator                  = std::mt19937_64;
+    using Generator       = std::mt19937_64;
 
-    using byte_type                  = std::uint8_t;
-    using size_type                  = std::size_t;
+    using byte_type       = std::uint8_t;
+    using size_type       = std::size_t;
 
-    using unsigned_type              = std::size_t;
+    using unsigned_type   = std::size_t;
 
-    using MoveTailFunction           = unsigned_type (*)(unsigned_type);
-    using Game2048DataAtFunction     = unsigned_type& (Game2048::*)(size_type, size_type);
-    using Game2048MoveOptionFunction = void (Game2048::*)(size_type&, unsigned_type*, Game2048DataAtFunction);
-    using Game2048DropZeroFunction   = void (Game2048::*)(size_type, unsigned_type*, Game2048DataAtFunction);
+    using pointer         = unsigned_type*;
+    using const_pointer   = const unsigned_type*;
+
+    using reference       = unsigned_type&;
+    using const_reference = const unsigned_type&;
+
+private:
+    template <typename Ret, typename... Args>
+    using Func = Ret (*)(Args...);
+
+    template <typename Ret, typename... Args>
+    using MFunc = Ret (Game2048::*)(Args...);
+
+    using FuncMoveTail    = Func<unsigned_type, unsigned_type>;
+    using MFuncDataAt     = MFunc<unsigned_type&, size_type, size_type>;
+    using MFuncMoveOption = MFunc<void, size_type&, unsigned_type*, MFuncDataAt>;
+    using MFuncDropZero   = MFunc<void, size_type, unsigned_type*, MFuncDataAt>;
 
 public:
     enum class Option : byte_type
@@ -29,7 +42,7 @@ public:
 
 private:
     Generator* generator_;
-    unsigned_type* data_;
+    pointer data_;
 
     size_type full_size_;
     size_type size_;
@@ -40,7 +53,7 @@ private:
 
 public:
     Game2048(size_type side_size);
-    Game2048(size_type side_size, unsigned_type* data, size_type score, bool done);
+    Game2048(size_type side_size, const_pointer data, size_type score, bool done);
 
     ~Game2048();
 
@@ -48,10 +61,10 @@ public:
 
     void step(Option option) noexcept;
 
-    const unsigned_type& data(size_type i, size_type j) const noexcept;
-    const unsigned_type& data(size_type i) const noexcept;
+    const_reference data(size_type i, size_type j) const noexcept;
+    const_reference data(size_type i) const noexcept;
 
-    const unsigned_type* data() const noexcept { return data_; }
+    const_pointer data() const noexcept { return data_; }
 
     size_type full_size() const noexcept { return full_size_; }
     size_type size() const noexcept { return size_; }
@@ -61,8 +74,8 @@ public:
     bool done() const noexcept { return done_; }
 
 private:
-    unsigned_type& horizontal_access(size_type row_number, size_type i) noexcept;
-    unsigned_type& vertical_access(size_type col_number, size_type i) noexcept;
+    reference horizontal_access(size_type row_number, size_type i) noexcept;
+    reference vertical_access(size_type col_number, size_type i) noexcept;
 
     size_type generate_insert_value(double prob_gen_2 = 0.9) noexcept;
 
@@ -70,42 +83,46 @@ private:
     void update() noexcept;
 
     void join_tail(size_type i, size_type j,
-                   MoveTailFunction move_tail,
-                   Game2048DataAtFunction at) noexcept;
+                   FuncMoveTail move_tail,
+                   MFuncDataAt at) noexcept;
 
-    void option_inc(Game2048DataAtFunction at) noexcept;
-    void option_dec(Game2048DataAtFunction at) noexcept;
+    void option_inc(MFuncDataAt at) noexcept;
+    void option_dec(MFuncDataAt at) noexcept;
 
-    void drop_zero_left(size_type n, Game2048DataAtFunction at) noexcept;
-    void drop_zero_right(size_type n, Game2048DataAtFunction at) noexcept;
+    void drop_zero_left(size_type n, MFuncDataAt at) noexcept;
+    void drop_zero_right(size_type n, MFuncDataAt at) noexcept;
 
-    bool has_inc_join(Game2048DataAtFunction at) noexcept;
-    bool has_dec_join(Game2048DataAtFunction at) noexcept;
+    bool has_inc_join(MFuncDataAt at) noexcept;
+    bool has_dec_join(MFuncDataAt at) noexcept;
 
-    bool check_inc(size_type n, Game2048DataAtFunction at) noexcept;
-    bool check_dec(size_type n, Game2048DataAtFunction at) noexcept;
+    bool check_inc(size_type n, MFuncDataAt at) noexcept;
+    bool check_dec(size_type n, MFuncDataAt at) noexcept;
 
 private:
     static size_type move_inc(unsigned_type a) noexcept { return ++a; }
     static size_type move_dec(unsigned_type a) noexcept { return --a; }
 };
 
-inline const std::size_t& Game2048::data(std::size_t i, std::size_t j) const noexcept
+inline typename Game2048::const_reference Game2048::data(
+    size_type i, size_type j) const noexcept
 {
     return data_[i * size_ + j];
 }
 
-inline const std::size_t& Game2048::data(std::size_t i) const noexcept
+inline typename Game2048::const_reference Game2048::data(
+    size_type i) const noexcept
 {
     return data_[i];
 }
 
-inline std::size_t& Game2048::horizontal_access(std::size_t row_number, std::size_t i) noexcept
+inline typename Game2048::reference Game2048::horizontal_access(
+    size_type row_number, size_type i) noexcept
 {
     return data_[row_number * size_ + i];
 }
 
-inline std::size_t& Game2048::vertical_access(std::size_t col_number, std::size_t i) noexcept
+inline typename Game2048::reference Game2048::vertical_access(
+    size_type col_number, size_type i) noexcept
 {
     return data_[i * size_ + col_number];
 }

@@ -10,7 +10,7 @@ Game2048::Game2048(size_type side_size)
 {
 }
 
-Game2048::Game2048(size_type side_size, unsigned_type* data, size_type score, bool done)
+Game2048::Game2048(size_type side_size, const_pointer data, size_type score, bool done)
     : generator_(new Generator(std::time(nullptr)))
     , data_(new unsigned_type [side_size * side_size])
     , full_size_(side_size * side_size)
@@ -129,19 +129,19 @@ void Game2048::step(Game2048::Option option) noexcept
 
 void Game2048::join_tail(
     size_type n, size_type k,
-    MoveTailFunction move_tail,
-    Game2048DataAtFunction at) noexcept
+    FuncMoveTail move_tail,
+    MFuncDataAt at) noexcept
 {
     if((this->*at)(n, move_tail(k)) == (this->*at)(n, k))
     {
         (this->*at)(n, move_tail(k)) = 0;
-        (this->*at)(n, k)          <<= 1;
+        (this->*at)(n, k)           *= 2;
 
         score_ += (this->*at)(n, k);
     }
 }
 
-void Game2048::option_inc(Game2048DataAtFunction at) noexcept
+void Game2048::option_inc(MFuncDataAt at) noexcept
 {
     for(size_type n = 0; n < size_; drop_zero_right(n, at), ++n)
     {
@@ -151,7 +151,7 @@ void Game2048::option_inc(Game2048DataAtFunction at) noexcept
     }
 }
 
-void Game2048::option_dec(Game2048DataAtFunction at) noexcept
+void Game2048::option_dec(MFuncDataAt at) noexcept
 {
     for(size_type n = 0; n < size_; drop_zero_left(n, at), ++n)
     {
@@ -161,7 +161,7 @@ void Game2048::option_dec(Game2048DataAtFunction at) noexcept
     }
 }
 
-void Game2048::drop_zero_left(size_type n, Game2048DataAtFunction at) noexcept
+void Game2048::drop_zero_left(size_type n, MFuncDataAt at) noexcept
 {
     int beg = 0;
     int end = size_ - 1;
@@ -184,7 +184,7 @@ void Game2048::drop_zero_left(size_type n, Game2048DataAtFunction at) noexcept
     }
 }
 
-void Game2048::drop_zero_right(size_type n, Game2048DataAtFunction at) noexcept
+void Game2048::drop_zero_right(size_type n, MFuncDataAt at) noexcept
 {
     int beg = 0;
     int end = size_ - 1;
@@ -207,7 +207,7 @@ void Game2048::drop_zero_right(size_type n, Game2048DataAtFunction at) noexcept
     }
 }
 
-bool Game2048::has_inc_join(Game2048DataAtFunction at) noexcept
+bool Game2048::has_inc_join(MFuncDataAt at) noexcept
 {
     for(size_type n = 0; n < size_; ++n)
         if(check_inc(n, at))
@@ -216,7 +216,7 @@ bool Game2048::has_inc_join(Game2048DataAtFunction at) noexcept
     return false;
 }
 
-bool Game2048::has_dec_join(Game2048DataAtFunction at) noexcept
+bool Game2048::has_dec_join(MFuncDataAt at) noexcept
 {
     for(size_type n = 0; n < size_; ++n)
         if(check_dec(n, at))
@@ -225,7 +225,7 @@ bool Game2048::has_dec_join(Game2048DataAtFunction at) noexcept
     return false;
 }
 
-bool Game2048::check_inc(size_type n, Game2048DataAtFunction at) noexcept
+bool Game2048::check_inc(size_type n, MFuncDataAt at) noexcept
 {
     int lhs = size_ - 2;
     for(int rhs = size_ - 1; rhs > 0; --lhs)
@@ -241,7 +241,7 @@ bool Game2048::check_inc(size_type n, Game2048DataAtFunction at) noexcept
     return false;
 }
 
-bool Game2048::check_dec(size_type n, Game2048DataAtFunction at) noexcept
+bool Game2048::check_dec(size_type n, MFuncDataAt at) noexcept
 {
     int lhs = 0;
     for(int rhs = 1; rhs < size_; ++rhs)
