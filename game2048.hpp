@@ -14,13 +14,13 @@ public:
     using byte_type       = std::uint8_t;
     using size_type       = std::size_t;
 
-    using unsigned_type   = std::size_t;
+    using tile_value_type = std::size_t;
 
-    using pointer         = unsigned_type*;
-    using const_pointer   = const unsigned_type*;
+    using pointer         = tile_value_type*;
+    using const_pointer   = const tile_value_type*;
 
-    using reference       = unsigned_type&;
-    using const_reference = const unsigned_type&;
+    using reference       = tile_value_type&;
+    using const_reference = const tile_value_type&;
 
 private:
     template <typename Ret, typename... Args>
@@ -29,10 +29,8 @@ private:
     template <typename Ret, typename... Args>
     using MFunc = Ret (Game2048::*)(Args...);
 
-    using FuncMoveTail    = Func<unsigned_type, unsigned_type>;
-    using MFuncDataAt     = MFunc<unsigned_type&, size_type, size_type>;
-    using MFuncMoveOption = MFunc<void, size_type&, unsigned_type*, MFuncDataAt>;
-    using MFuncDropZero   = MFunc<void, size_type, unsigned_type*, MFuncDataAt>;
+    using FuncMoveTile    = Func<size_type, size_type>;
+    using MFuncDataAt     = MFunc<reference, size_type, size_type>;
 
 public:
     enum class Option : byte_type
@@ -77,13 +75,13 @@ private:
     reference horizontal_access(size_type row_number, size_type i) noexcept;
     reference vertical_access(size_type col_number, size_type i) noexcept;
 
-    size_type generate_insert_value(double prob_gen_2 = 0.9) noexcept;
+    tile_value_type generate_insert_value(double gen2 = 0.9) noexcept;
 
     void random_insert() noexcept;
     void update() noexcept;
 
     void join_tail(size_type i, size_type j,
-                   FuncMoveTail move_tail,
+                   FuncMoveTile move_tale,
                    MFuncDataAt at) noexcept;
 
     void option_inc(MFuncDataAt at) noexcept;
@@ -99,8 +97,8 @@ private:
     bool check_dec(size_type n, MFuncDataAt at) noexcept;
 
 private:
-    static size_type move_inc(unsigned_type a) noexcept { return ++a; }
-    static size_type move_dec(unsigned_type a) noexcept { return --a; }
+    static size_type move_inc(size_type a) noexcept { return ++a; }
+    static size_type move_dec(size_type a) noexcept { return --a; }
 };
 
 inline typename Game2048::const_reference Game2048::data(

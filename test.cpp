@@ -2,6 +2,9 @@
 
 #include "game2048.hpp"
 
+using std::cout;
+using std::cin;
+
 Game2048::Option get_option(char button)
 {
     switch(button)
@@ -25,13 +28,15 @@ Game2048::Option get_option(char button)
 
 void display(const Game2048& game)
 {
-    std::cout << "score: " << game.score() << '\n';
+    using size_type = Game2048::size_type;
 
-    for(std::size_t i = 0; i < game.size(); ++i, std::cout << '\n')
-        for(std::size_t j = 0; j < game.size(); ++j)
-            std::cout << '\t' << game.data(i, j);
+    cout << "score: " << game.score() << '\n';
 
-    std::cout << '\n';
+    for(size_type i = 0; i < game.size(); ++i, cout << '\n')
+        for(size_type j = 0; j < game.size(); ++j)
+            cout << '\t' << game.data(i, j);
+
+    cout << '\n';
 }
 
 void play()
@@ -42,17 +47,17 @@ void play()
     display(game);
 
     char button;
-    while(!game.done())
+    while(not game.done())
     {
 
-        std::cout << "Select option: up(w), down(s), left(a), right(d): ";
-        std::cin >> button;
+        cout << "Select option: up(w), down(s), left(a), right(d): ";
+        cin >> button;
 
         game.step(get_option(button));
         display(game);
     }
 
-    std::cout << "Game Over!\n";
+    cout << "Game Over!\n";
 }
 
 int main()
