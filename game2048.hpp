@@ -30,7 +30,7 @@ private:
     using MFunc = Ret (Game2048::*)(Args...);
 
     using FuncMoveTile    = Func<size_type, size_type>;
-    using MFuncDataAt     = MFunc<reference, size_type, size_type>;
+    using MFuncDataAccess = MFunc<reference, size_type, size_type>;
 
 public:
     enum class Option : byte_type
@@ -53,14 +53,23 @@ public:
     Game2048(size_type side_size);
     Game2048(size_type side_size, const_pointer data, size_type score, bool done);
 
+    Game2048(const Game2048&);
+    Game2048(Game2048&&) noexcept;
+
     ~Game2048();
+
+    Game2048& operator= (const Game2048&);
+    Game2048& operator= (Game2048&&) noexcept;
 
     void reset() noexcept;
 
     void step(Option option) noexcept;
 
-    const_reference data(size_type i, size_type j) const noexcept;
-    const_reference data(size_type i) const noexcept;
+    const_reference data(size_type i, size_type j) const noexcept
+    { return data_[i * size_ + j]; }
+
+    const_reference data(size_type i) const noexcept
+    { return data_[i]; }
 
     const_pointer data() const noexcept { return data_; }
 
@@ -72,8 +81,11 @@ public:
     bool done() const noexcept { return done_; }
 
 private:
-    reference horizontal_access(size_type row_number, size_type i) noexcept;
-    reference vertical_access(size_type col_number, size_type i) noexcept;
+    reference horizontal_access(size_type row_number, size_type i) noexcept
+    { return data_[row_number * size_ + i]; }
+
+    reference vertical_access(size_type col_number, size_type i) noexcept
+    { return data_[i * size_ + col_number]; }
 
     tile_value_type generate_insert_value(double gen2 = 0.9) noexcept;
 
@@ -82,47 +94,26 @@ private:
 
     void join_tail(size_type i, size_type j,
                    FuncMoveTile move_tale,
-                   MFuncDataAt at) noexcept;
+                   MFuncDataAccess at) noexcept;
 
-    void option_inc(MFuncDataAt at) noexcept;
-    void option_dec(MFuncDataAt at) noexcept;
+    void option_increase(MFuncDataAccess at) noexcept;
+    void option_decrease(MFuncDataAccess at) noexcept;
 
-    void drop_zero_left(size_type n, MFuncDataAt at) noexcept;
-    void drop_zero_right(size_type n, MFuncDataAt at) noexcept;
+    void drop_zero_left(size_type n, MFuncDataAccess at) noexcept;
+    void drop_zero_right(size_type n, MFuncDataAccess at) noexcept;
 
-    bool has_inc_join(MFuncDataAt at) noexcept;
-    bool has_dec_join(MFuncDataAt at) noexcept;
+    bool has_increase_join(MFuncDataAccess at) noexcept;
+    bool has_decrease_join(MFuncDataAccess at) noexcept;
 
-    bool check_inc(size_type n, MFuncDataAt at) noexcept;
-    bool check_dec(size_type n, MFuncDataAt at) noexcept;
+    bool check_increase(size_type n, MFuncDataAccess at) noexcept;
+    bool check_decrease(size_type n, MFuncDataAccess at) noexcept;
 
 private:
-    static size_type move_inc(size_type a) noexcept { return ++a; }
-    static size_type move_dec(size_type a) noexcept { return --a; }
+    static size_type move_increase(size_type a) noexcept { return ++a; }
+    static size_type move_decrease(size_type a) noexcept { return --a; }
+
+    static void copy(pointer first, pointer last, const_pointer src) noexcept;
+    static void fill(pointer first, pointer last, tile_value_type value) noexcept;
 };
-
-inline typename Game2048::const_reference Game2048::data(
-    size_type i, size_type j) const noexcept
-{
-    return data_[i * size_ + j];
-}
-
-inline typename Game2048::const_reference Game2048::data(
-    size_type i) const noexcept
-{
-    return data_[i];
-}
-
-inline typename Game2048::reference Game2048::horizontal_access(
-    size_type row_number, size_type i) noexcept
-{
-    return data_[row_number * size_ + i];
-}
-
-inline typename Game2048::reference Game2048::vertical_access(
-    size_type col_number, size_type i) noexcept
-{
-    return data_[i * size_ + col_number];
-}
 
 #endif // GAME2048_HPP
