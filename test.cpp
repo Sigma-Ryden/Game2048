@@ -49,6 +49,7 @@ void play()
     char button;
     while(not game.done())
     {
+
         cout << "Select option: up(w), down(s), left(a), right(d): ";
         cin >> button;
 

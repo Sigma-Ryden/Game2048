@@ -155,9 +155,9 @@ void Game2048::update() noexcept
     }
 }
 
-void Game2048::step(Game2048::Option option) noexcept
+bool Game2048::step(Game2048::Option option) noexcept
 {
-    if(done_) return;
+    if(done_) return false;
 
     bool has_join_up    = has_increase_join(&Game2048::vertical_access);
     bool has_join_down  = has_decrease_join(&Game2048::vertical_access);
@@ -170,40 +170,42 @@ void Game2048::step(Game2048::Option option) noexcept
        not has_join_right)
     {
         done_ = true;
-        return;
+        return false;
     }
     
     switch(option)
     {
     case(Option::up):
-        if(not has_join_up) return;
+        if(not has_join_up) return false;
       	
         option_increase(&Game2048::vertical_access);
       	break;
 
     case(Option::down):
-      	if(not has_join_down) return;
+        if(not has_join_down) return false;
       	
         option_decrease(&Game2048::vertical_access);
       	break;
 
     case(Option::left):
-      	if(not has_join_left) return;
+        if(not has_join_left) return false;
       	
         option_increase(&Game2048::horizontal_access);
       	break;
 
     case(Option::right):
-        if(not has_join_right) return;
+        if(not has_join_right) return false;
         
         option_decrease(&Game2048::horizontal_access);
         break;
 
     default:
-        return;
+        return false;
     }
 
     update();
+
+    return true;
 }
 
 void Game2048::join_tail(

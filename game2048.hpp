@@ -63,7 +63,7 @@ public:
 
     void reset() noexcept;
 
-    void step(Option option) noexcept;
+    bool step(Option option) noexcept;
 
     const_reference data(size_type i, size_type j) const noexcept
     { return data_[i * size_ + j]; }
