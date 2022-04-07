@@ -213,12 +213,12 @@ void Game2048::join_tail(
     FuncMoveTile move_tile,
     MFuncDataAccess at) noexcept
 {
-    if((this->*at)(n, move_tile(k)) == (this->*at)(n, k))
+    if(access(n, move_tile(k)) == access(n, k))
     {
-        (this->*at)(n, move_tile(k)) = 0;
-        (this->*at)(n, k)           *= 2;
+        access(n, move_tile(k)) = 0;
+        access(n, k) *= 2;
 
-        score_ += (this->*at)(n, k);
+        score_ += access(n, k);
     }
 }
 
